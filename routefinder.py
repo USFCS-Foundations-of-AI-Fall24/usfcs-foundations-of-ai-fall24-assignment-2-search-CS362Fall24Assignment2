@@ -1,5 +1,6 @@
 from queue import PriorityQueue
 
+from docx import Document
 import math
 
 from Graph import Graph, Node, Edge
@@ -39,17 +40,18 @@ class map_state() :
 
 def a_star(start_state, heuristic_fn, goal_test, use_closed_list=True) :
     search_queue = PriorityQueue()
-    closed_list = {}
+    closed_list = set()
     start_state.h = heuristic_fn(start_state)
-    search_queue.put(start_state)
+    start_state.f = start_state.g + start_state.h
+    search_queue.put((start_state.f, start_state))
     ## you do the rest.
     cost_so_far = {}
-    cost_so_far = {start_state.location: 0}
+    cost_so_far[start_state.location] = 0
 
     while not search_queue.empty():
-        current_state = search_queue.get()
+        current_priority, current_state = search_queue.get()
 
-        if current_state.is_goal():
+        if goal_test(current_state):
             path = []
             while current_state is not None:
                 path.append(current_state)
@@ -57,24 +59,23 @@ def a_star(start_state, heuristic_fn, goal_test, use_closed_list=True) :
             return path[::-1]
 
         if use_closed_list:
-            closed_list[current_state] = True
+            closed_list.add(current_state)
 
         for neighbor, cost in current_state.mars_graph.get_neighbors(current_state):
             new_cost = cost_so_far[current_state.location] + cost
 
             if neighbor.location not in cost_so_far or new_cost < cost_so_far[neighbor.location]:
                 cost_so_far[neighbor.location] = new_cost
-
+                # priority = new_cost + heuristic_fn(neighbor)
                 neighbor.g = new_cost
                 neighbor.h = heuristic_fn(neighbor)
                 neighbor.f = neighbor.g + neighbor.h
 
                 neighbor.prev_state = current_state
+                search_queue.put((neighbor.f, neighbor))
 
-                if use_closed_list and neighbor in closed_list:
-                    continue
-
-                search_queue.put(neighbor)
+                if use_closed_list and neighbor not in closed_list:
+                    closed_list.add(current_state)
 
     return None
 
@@ -84,7 +85,7 @@ def h1(state) :
 
 ## you do this - return the straight-line distance between the state and (1,1)
 def sld(state) :
-    print(f"Debug - Location: {state.location}")
+
     if state.location:
         try:
             x1, y1 = map(int, state.location.split(","))
@@ -106,48 +107,27 @@ def sld(state) :
 def read_mars_graph(filename):
     graph = Graph()
 
-    with open(filename, "r", encoding="utf-8") as f:
-        read_data = f.readlines()
+    doc = Document(filename)
+    read_data = []
 
     obstacles = set()
 
+    for para in doc.paragraphs:
+        read_data.append(para.text)
+
     for line in read_data:
-        if "(" in line and ")" in line:
-            cords = line[line.index("(") + 1: line.index(")")]
+        line = line.strip()
 
-            x_str, y_str = cords.split(",")
+        if ":" in line:
+            src, neighbors = line.split(":")
+            src = src.strip()
+            graph.add_node(Node(src))
 
-            x = int(x_str.strip())
-            y = int(y_str.strip())
+            for neighbor in neighbors.split():
+                neighbor = neighbor.strip()
+                edge = Edge(src=src, dest=neighbor)
+                graph.add_edge(edge)
 
-            node = Node(f"{x},{y}")
-
-            graph.add_node(node)
-
-            #if there's an x, there's an obstacle
-            y_pos = 0
-            for char in line:
-                if char == "x":
-                    obstacle_node = Node(f"{x},{y_pos}")
-                    obstacles.add((x, y))
-                y_pos += 1
-
-        for node in graph.g.keys():
-            x, y = map(int, node.value.split(","))
-
-            neighbors = [
-                (x - 1, y),
-                (x + 1, y),
-                (x, y - 1),
-                (x, y + 1)
-            ]
-
-            for neighbor in neighbors:
-                if neighbor in graph.g and neighbor not in obstacles:
-                    edge = Edge(src=node, dest=neighbor)
-                    graph.add_edge(edge)
-
-        return graph
-
+    return graph
 
 

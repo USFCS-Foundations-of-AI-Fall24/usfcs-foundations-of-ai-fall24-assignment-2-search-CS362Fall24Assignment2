@@ -42,5 +42,8 @@ class Graph :
         if src in self.g:
             return self.g[src]
 
+    def get_neighbors(self, node):
+        return self.g.get(node.location, [])
+
 
 

@@ -27,16 +27,8 @@ class RoverState :
 
     ## you do this.
     def __eq__(self, other):
-        if not isinstance(other, RoverState):
-            return False
-        if (self.loc == other.loc and
-                self.sample_extracted == other.sample_extracted and
-                self.holding_sample == other.holding_sample and
-                self.charged == other.charged and
-                self.holding_tool == other.holding_tool):
-            return True
-        else:
-            return False
+        return (self.loc == other.loc and self.sample_extracted == other.sample_extracted
+                and self.holding_sample == other.holding_sample and self.charged == other.charged)
 
 
 
