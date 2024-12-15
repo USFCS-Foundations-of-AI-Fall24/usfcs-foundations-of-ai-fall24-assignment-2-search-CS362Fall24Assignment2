@@ -1,0 +1,44 @@
+Assignment 2 comments:
+
+Question 1: Algorithms. 8/10
+UCS is still complete on infinite graphs, as is IDS.
+
+Question 2:
+
+eq: 5/5
+
+goal: 5/5
+
+BFS/DFS: 2/5
+You're only generating 2 states, which seems weird.
+--- Breadth-First Search ---
+Total states generated: 2
+
+
+--- Depth-First Search ---
+Total states generated: 2
+
+DLS: 10/10
+
+tools: 10/10
+
+decomposition: 10/10
+
+Question 3:
+
+read_mars_graph: 5/5
+
+A*: 10/15
+There's nothing to test your code, and it doesn't print a result.
+
+count states: 0/5 not implemented
+
+Question 4: 10/10
+
+Question 5: 10/10 - this is pretty brief; please add more detail in the future.
+
+85/100
+
+
+
+
